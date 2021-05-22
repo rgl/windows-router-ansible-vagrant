@@ -1,0 +1,34 @@
+- include_role:
+    name: common
+
+- name: Install the Routing Windows feature
+  ansible.windows.win_feature:
+    name: Routing
+    include_management_tools: yes
+
+- name: Enable LAN routing
+  ansible.windows.win_powershell:
+    script: |
+      Set-StrictMode -Version Latest
+      $ErrorActionPreference = 'Stop'
+      $ProgressPreference = 'SilentlyContinue'
+      $Ansible.Changed = $false
+      if ((Get-RemoteAccess).RoutingStatus -eq 'Uninstalled') {
+        Install-RemoteAccess -VpnType RoutingOnly
+        $Ansible.Changed = $true
+      }
+
+# enable full NAT from the router interface through the vagrant interface.
+- name: Enable NAT
+  ansible.windows.win_powershell:
+    script: |
+      Set-StrictMode -Version Latest
+      $ErrorActionPreference = 'Stop'
+      $ProgressPreference = 'SilentlyContinue'
+      $Ansible.Changed = $false
+      if ((netsh routing ip nat show interface) -eq 'No information found for the specified protocol') {
+        netsh routing ip nat install
+        netsh routing ip nat add interface vagrant mode=full
+        netsh routing ip nat add interface router
+        $Ansible.Changed = $true
+      }

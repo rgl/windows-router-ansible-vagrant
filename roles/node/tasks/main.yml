@@ -1,0 +1,8 @@
+- name: Set the default gateway
+  ansible.windows.win_powershell:
+    script: "{{ lookup('file', 'set-default-gateway.ps1') }}"
+    parameters:
+      routerIpAddress: "{{ hostvars['router']['router_ip_address'] }}"
+
+- include_role:
+    name: common

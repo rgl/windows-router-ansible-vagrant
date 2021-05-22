@@ -1,0 +1,86 @@
+- name: Set network interface names
+  ansible.windows.win_powershell:
+    script: "{{ lookup('file', 'set-network-interface-names.ps1') }}"
+
+- name: Set region
+  community.windows.win_region:
+    location: 193
+    format: pt-PT           # date format, number format, etc.
+    unicode_language: en-US # UI language.
+    copy_settings: yes
+
+- name: Set keyboard layout
+  ansible.windows.win_powershell:
+    script: "{{ lookup('file', 'set-keyboard-layout.ps1') }}"
+    parameters:
+      languageTag: pt-PT
+
+- name: Set timezone
+  community.windows.win_timezone:
+    timezone: GMT Standard Time
+
+- name: Install Chocolatey
+  chocolatey.chocolatey.win_chocolatey:
+    # https://community.chocolatey.org/packages/chocolatey
+    name: chocolatey
+    version: '0.10.15'
+
+- name: Install Notepad3
+  chocolatey.chocolatey.win_chocolatey:
+    # https://community.chocolatey.org/packages/notepad3
+    name: notepad3
+    version: '5.21.227.1'
+
+- name: Install Firefox
+  block:
+    - name: Install Firefox
+      chocolatey.chocolatey.win_chocolatey:
+        # https://community.chocolatey.org/packages/firefox
+        name: firefox
+        version: '88.0.1'
+        package_params: /l:en-US
+    - name: Install SetDefaultBrowser
+      chocolatey.chocolatey.win_chocolatey:
+        # https://community.chocolatey.org/packages/setdefaultbrowser
+        name: setdefaultbrowser
+        version: '1.5.0'
+    - name: Set Firefox as the default browser
+      ansible.windows.win_powershell:
+        script: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = 'Stop'
+          $ProgressPreference = 'SilentlyContinue'
+          $Ansible.Changed = $false
+          $browser = @((SetDefaultBrowser | Where-Object {$_ -like 'HKLM Firefox-*'}) -split ' ')
+          $browserId = $browser[1]
+          $path = "$($Ansible.Tmpdir)\AppAssociations.xml"
+          Dism /Online "/Export-DefaultAppAssociations:$path"
+          [xml]$doc = Get-Content $path
+          $node = $doc.SelectSingleNode("/DefaultAssociations/Association[@ApplicationName='Firefox']")
+          if (!$node) {
+            SetDefaultBrowser @browser
+            $Ansible.Changed = $true
+          }
+
+- name: Install Wireshark
+  block:
+    - name: Install Wireshark
+      chocolatey.chocolatey.win_chocolatey:
+        # https://community.chocolatey.org/packages/wireshark
+        name: wireshark
+        version: '3.4.5'
+    - name: Install Wireshark Desktop shortcut
+      community.windows.win_shortcut:
+        src: C:\Program Files\Wireshark\Wireshark.exe
+        dest: Desktop\Wireshark.lnk
+
+# leave npcap on the desktop for the user to install manually.
+# (it does not have a silent installer).
+# see https://nmap.org/npcap/#download
+# see https://github.com/nmap/npcap/releases
+- name: Download npcap
+  ansible.windows.win_get_url:
+    dest: Desktop\npcap-1.31.exe
+    url: https://nmap.org/npcap/dist/npcap-1.31.exe
+    checksum: d6ad41e38e240b19a1db57e3ceb21ac3c7fa4d970ee6f446a0ac10fdc4bf9ec5
+    checksum_algorithm: sha256
