@@ -1,5 +1,5 @@
-# see https://docs.ansible.com/ansible-core/2.11/user_guide/windows_usage.html
-# see https://docs.ansible.com/ansible-core/2.11/user_guide/windows_faq.html#can-i-run-python-modules-on-windows-hosts
+# see https://docs.ansible.com/ansible-core/2.12/user_guide/windows_usage.html
+# see https://docs.ansible.com/ansible-core/2.12/user_guide/windows_faq.html#can-i-run-python-modules-on-windows-hosts
 # see https://github.com/ansible-collections/ansible.windows
 # see https://github.com/ansible-collections/community.windows
 
