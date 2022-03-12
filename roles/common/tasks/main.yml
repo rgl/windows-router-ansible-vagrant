@@ -23,13 +23,13 @@
   chocolatey.chocolatey.win_chocolatey:
     # https://community.chocolatey.org/packages/chocolatey
     name: chocolatey
-    version: '0.10.15'
+    version: '0.12.1'
 
 - name: Install Notepad3
   chocolatey.chocolatey.win_chocolatey:
     # https://community.chocolatey.org/packages/notepad3
     name: notepad3
-    version: '5.21.227.1'
+    version: '5.21.1129.1'
 
 - name: Install Firefox
   block:
@@ -37,7 +37,7 @@
       chocolatey.chocolatey.win_chocolatey:
         # https://community.chocolatey.org/packages/firefox
         name: firefox
-        version: '88.0.1'
+        version: '98.0'
         package_params: /l:en-US
     - name: Install SetDefaultBrowser
       chocolatey.chocolatey.win_chocolatey:
@@ -68,7 +68,7 @@
       chocolatey.chocolatey.win_chocolatey:
         # https://community.chocolatey.org/packages/wireshark
         name: wireshark
-        version: '3.4.5'
+        version: '3.6.2'
     - name: Install Wireshark Desktop shortcut
       community.windows.win_shortcut:
         src: C:\Program Files\Wireshark\Wireshark.exe
@@ -80,7 +80,7 @@
 # see https://github.com/nmap/npcap/releases
 - name: Download npcap
   ansible.windows.win_get_url:
-    dest: Desktop\npcap-1.31.exe
-    url: https://nmap.org/npcap/dist/npcap-1.31.exe
-    checksum: d6ad41e38e240b19a1db57e3ceb21ac3c7fa4d970ee6f446a0ac10fdc4bf9ec5
+    dest: Desktop\npcap-1.60.exe
+    url: https://npcap.com/dist/npcap-1.60.exe
+    checksum: 87d3624772b8272767a3a4ffcceecc3052489cd09e494a6c352dce5e5efa4070
     checksum_algorithm: sha256
